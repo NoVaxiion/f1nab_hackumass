@@ -14,21 +14,24 @@ code {
 }
 
 #aichat-box {
-  position: fixed;    /* Sticks the element to a fixed position on the viewport */
-  bottom: 20px;       /* Moves it 20px away from the bottom */
-  right: 20px;        /* Moves it 20px away from the right */
-  width: 500px;
+  position: fixed;       /* Sticks the element to a fixed position on the viewport */
+  top: 0;                /* Positions the chatbox at the top */
+  right: 0;              /* Sticks the chatbox to the right edge of the screen */
+  width: 30vw;           /* Makes the width 30% of the viewport width */
+  height: 100vh;         /* Makes the height 100% of the viewport height */
   padding: 10px;
-  padding-bottom: 200px;
-  background-color: #3F3434;
-  color: white;
-  border-radius: 13px;
+  background-color: rgb(21,21,30);
+  color: #e5e7eb;
+  border-radius: 0px;    /* Removes border radius for a more rectangular shape */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;      /* Adds scrolling for content if it overflows vertically */
+  padding-top: 280px;
 }
 
 #msgBox {
   border-radius: 5px;
   padding: 8px;
+  align-items: center;
 }
 
 #search-bar {
@@ -52,28 +55,35 @@ code {
   padding: 11.5px 15px;
   font-size: 16px;
   border: none;
-  background-color: #4CAF50;
-  color: white;
+  background-color: rgb(225 6 0);
+  color: #e5e7eb;
   border-radius: 25px;
   margin-left: 10px;
   cursor: pointer;
+  transition: background-color 0.26s ease;
 }
 
 /* Button hover effect */
 .search-button:hover {
-  background-color: #45a049;
+  background-color: #e5e7eb;
+  color: rgb(255 6 0);
+}
+
+.search-button:active {
+  padding: 10.5px 14px;
 }
 
 .input-container {
   display: inline-block;
   font-size: 1.2em;
   white-space: nowrap;
-  border-right: 3px solid;
+  border-right: 2.5px solid;
   overflow: hidden;
   max-width: 0; /* Start with 0 width */
   animation:
-    typing 2s steps(47) forwards, /* Keep text visible after animation */
+    typing 2.3s steps(47) forwards, /* Keep text visible after animation */
     cursor .4s step-end infinite alternate;
+    line-height: 0.01em;
 }
 
 @keyframes cursor {
@@ -88,4 +98,9 @@ code {
 .text {
   display: inline-block;
   white-space: nowrap;
+}
+
+#embeddint-box {
+  width: 60vw;           /* Makes the width 30% of the viewport width */
+  height: 100vh;
 }
