@@ -1,102 +1,80 @@
-import pinecone
 import sqlite3
-import openai
-import re
+import pinecone
+from sentence_transformers import SentenceTransformer
 
-pinecone.init(api_key="YOUR_PINECONE_API_KEY", environment="YOUR_PINECONE_ENVIRONMENT")
-index = pinecone.Index("your-index-name")
-openai.api_key = "YOUR_OPENAI_API_KEY"
+# Initialize Pinecone and Sentence Transformer
+pinecone.init(api_key="746ffef8-d626-4248-9a92-efb213a2a5b9 ", environment="us-east-1")
+index_name = "hackumass"
+if index_name not in pinecone.list_indexes():
+    pinecone.create_index(index_name, dimension=384, metric="cosine")  # Dimension matches MiniLM-L6-v2
+index = pinecone.Index(index_name)
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 conn = sqlite3.connect("f1_race_data.db")
 cursor = conn.cursor()
 
-def extract_query_context(query):
-    year_match = re.search(r'\b(20\d{2})\b', query)
-    race_match = re.search(r'\b(Silverstone|Monaco|Austrian|British|Italian|Brazilian|Australian|Canadian|French|Spanish|Belgian|Singapore|Japanese|Abu Dhabi|Dutch|Hungarian|Chinese|Bahrain|United States|German|Mexican)\b', query, re.IGNORECASE)
-    driver_match = re.search(r'\b(Hamilton|Verstappen|Leclerc|Bottas|Norris|Perez|Sainz|Ricciardo|Russell|Gasly)\b', query, re.IGNORECASE)
-    
-    race_metadata = {}
-    if year_match and race_match:
-        race_metadata['season'] = year_match.group(0)
-        race_metadata['race_name'] = race_match.group(0).title()
-    if driver_match:
-        race_metadata['driver_name'] = driver_match.group(0).title()
-    
-    return race_metadata
+def generate_embedding(text):
+    return model.encode(text).tolist()
 
-def get_relevant_data_from_pinecone(user_query, race_metadata=None):
-    query_embedding = openai.Embedding.create(input=user_query, model="text-embedding-ada-002")["data"][0]["embedding"]
-    
-    metadata_filter = {}
-    if race_metadata:
-        if 'season' in race_metadata:
-            metadata_filter['season'] = race_metadata['season']
-        if 'race_name' in race_metadata:
-            metadata_filter['race_name'] = race_metadata['race_name']
-        if 'driver_name' in race_metadata:
-            metadata_filter['driver_name'] = race_metadata['driver_name']
+def check_and_store_embedding(text, metadata, entry_id):
+    response = index.query(vector=generate_embedding(text), top_k=1, filter=metadata)
+    if response.get("matches") and response["matches"][0]["id"] == entry_id:
+        return
 
-    response = index.query(
-        vector=query_embedding,
-        top_k=10,
-        include_metadata=True,
-        filter=metadata_filter if metadata_filter else None
-    )
-    
-    retrieved_context = "\n".join([str(match['metadata']) for match in response['matches']])
-    return retrieved_context
+    embedding = generate_embedding(text)
+    index.upsert([(entry_id, embedding, metadata)])
 
-class RAGRaceChatbot:
-    def __init__(self, max_history_tokens=1500):
-        self.active_race_metadata = {}
-        self.chat_history = []
-        self.max_history_tokens = max_history_tokens
+def upload_race_data():
+    cursor.execute("SELECT * FROM races")
+    races = cursor.fetchall()
+    for race in races:
+        race_id, season, round_num, race_name, date, circuit_id, circuit_name, location, country = race
+        metadata = {
+            "type": "race",
+            "season": season,
+            "round": round_num,
+            "race_name": race_name,
+            "date": date,
+            "circuit_name": circuit_name,
+            "location": location,
+            "country": country
+        }
+        text = f"{race_name}, {season} season, {circuit_name}, located in {location}, {country}"
+        check_and_store_embedding(text, metadata, entry_id=str(race_id))
 
-    def set_active_race(self, race_metadata):
-        self.active_race_metadata = race_metadata
-        print(f"Active race set with metadata {race_metadata}")
+    cursor.execute("SELECT * FROM lap_times")
+    lap_times = cursor.fetchall()
+    for lap in lap_times:
+        race_id, driver_id, lap_number, position, time, milliseconds = lap
+        metadata = {
+            "type": "lap_time",
+            "race_id": race_id,
+            "driver_id": driver_id,
+            "lap_number": lap_number,
+            "position": position,
+            "time": time,
+            "milliseconds": milliseconds
+        }
+        text = f"Lap {lap_number} of race {race_id} for driver {driver_id} with time {time}."
+        check_and_store_embedding(text, metadata, entry_id=f"{race_id}-{lap_number}-{driver_id}")
 
-    def reset_active_race(self):
-        self.active_race_metadata = {}
+    cursor.execute("SELECT * FROM drivers")
+    drivers = cursor.fetchall()
+    for driver in drivers:
+        driver_id, code, forename, surname, nationality = driver
+        metadata = {
+            "type": "driver",
+            "driver_id": driver_id,
+            "code": code,
+            "forename": forename,
+            "surname": surname,
+            "nationality": nationality
+        }
+        text = f"Driver {forename} {surname}, nationality {nationality}, code {code}"
+        check_and_store_embedding(text, metadata, entry_id=str(driver_id))
 
-    def update_chat_history(self, user_query, bot_response):
-        self.chat_history.append(f"User: {user_query}\nBot: {bot_response}")
-        history_tokens = sum(len(message) for message in self.chat_history)
+    print("Data embedded and stored in Pinecone.")
 
-        while history_tokens > self.max_history_tokens:
-            self.chat_history.pop(0)
-            history_tokens = sum(len(message) for message in self.chat_history)
-
-    def handle_query(self, user_query):
-        if not self.active_race_metadata:
-            self.active_race_metadata = extract_query_context(user_query)
-        
-        retrieved_context = get_relevant_data_from_pinecone(user_query, self.active_race_metadata)
-        
-        history_context = "\n".join(self.chat_history)
-        augmented_prompt = f"{history_context}\nUser query: {user_query}\nContext:\n{retrieved_context}"
-
-        openai_response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt=augmented_prompt,
-            max_tokens=150
-        )
-        bot_response = openai_response.choices[0].text.strip()
-        
-        self.update_chat_history(user_query, bot_response)
-        return bot_response
-    
-# testing this shit if it fails I will tweak 
-
-chatbot = RAGRaceChatbot()
-
-user_question = "Why did Hamilton pit for softs in Austria 2021 in the final stage of the race?"
-response = chatbot.handle_query(user_question)
-print("Chatbot response:", response)
-
-chatbot.reset_active_race()
-general_question = "Who won the 2005 World Championship?"
-response = chatbot.handle_query(general_question)
-print("Chatbot response:", response)
-
+upload_race_data()
 conn.close()
