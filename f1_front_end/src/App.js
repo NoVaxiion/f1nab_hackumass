@@ -29,12 +29,22 @@ function App() {
 
       {/* Box for the Chat AI */}
       <div id="aichat-box">
+        <div class="input-container">
+          <p class="text">What would you like to know about F1 Racing?</p>
+        </div>
         <div id="input">
           <p><strong>User:</strong> Hello there!</p>
           <p><strong>Bot:</strong> Hi! How can I help you?</p>
         </div>
-        <input type="text" placeholder="Type your message..."/>
-        <button>Send</button>
+
+        <div class="search-bar-container">
+          <input type="text" class="search-bar" placeholder="Type your message..." />  
+          <button class="search-button">Send</button>
+        </div>
+
+        <div class="output">
+
+        </div>
       </div>
       
     </div>
