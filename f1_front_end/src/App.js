@@ -16,62 +16,58 @@ const containerStyle = {
   height: '100vh',
 };
 
-
 const chatBoxContainerStyle = {
-  // flex: '1',
-  marginright: '100px',
   display: 'flex',
-  flexDirection: 'column'
-}
+  flexDirection: 'column',
+  width: '30%',  // Adjust the width of the AI chat box to 30%
+  marginRight: '20px',
+};
 
 const iframeStyle = {
-  width: "1100px",
+  width: "100%",  // Full width of the container (embedding-box)
   height: "750px",
-  title: "F1 TV Embedding"
-}
+  title: "F1 TV Embedding",
+};
 
 function App() {
   return (
-    <div style={containerStyle}>
-      {/* Box for Embedding*/}
-      <div id="embedding-box" padding="10px">
+    <div id="container">
+      {/* Box for Embedding */}
+      <div id="embedding-box">
         <iframe
-        style={iframeStyle}
-        src="https://f1tv.formula1.com/" // Replace with your video URL
-        title="F1 TV Embedding"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+          src="https://f1tv.formula1.com/"
+          title="F1 TV Embedding"
         name="iframe"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
         ></iframe>
-        <button onClick={() => window.open('https://f1tv.formula1.com/', '_blank')}>
-            Open F1 TV
-        </button>
-        {/* <iframe stlye={iframeStyle} src="external.htm" name="iframe"></iframe> */}
-        {/* <a href="http://f1tv.formula1.com/" target="iframe">SO</a> */}
       </div>
 
       {/* Box for the Chat AI */}
       <div id="aichat-box">
-        <div class="input-container">
-          <p class="text">What would you like to know about F1 Racing?</p>
-        </div>
-        <div id="input">
-          <p><strong>User:</strong> Hello there!</p>
-          <p><strong>Bot:</strong> Hi! How can I help you?</p>
-        </div>
+        <div id="aichat-box-inner">
+          <div className="input-container">
+            <p className="text">What would you like to know about F1 Racing?</p>
+          </div>
+          <div id="input">
+            <p><strong>User:</strong> Hello there!</p>
+            <p><strong>Bot:</strong> Hi! How can I help you?</p>
+          </div>
 
-        <div class="search-bar-container">
-          <input type="text" class="search-bar" placeholder="Type your message..." />  
-          <button class="search-button">Send</button>
-        </div>
+          <div className="search-bar-container">
+            <input type="text" className="search-bar" placeholder="Type your message..." />
+            <button className="search-button">Send</button>
+          </div>
 
-        <div class="output">
-
+          <div className="output"></div>
         </div>
       </div>
-      
     </div>
-    
   );
 }
 
