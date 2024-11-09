@@ -61,7 +61,7 @@ html, body {
 }
 
 .search-bar {
-  width: 75%;                 
+  width: 100%;                 
   padding: 10px;
   font-size: 16px;
   border: 2px solid #ccc;
@@ -113,4 +113,55 @@ html, body {
 .text {
   display: inline-block;
   white-space: nowrap;
+}
+
+/* Chat bubble styles */
+.chat-bubble {
+  max-width: 70%;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 20px 0;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* User chat bubble */
+.user-bubble {
+  background-color: rgb(225 6 0);
+  color: #e5e7eb;
+  align-self: flex-end;
+  text-align: right;
+  border-bottom-right-radius: 5px;
+  border-top-left-radius: 20px;
+}
+
+/* Bot chat bubble */
+.bot-bubble {
+  background-color: #e5e5ea;
+  color: #000;
+  align-self: flex-start;
+  text-align: left;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 20px;
+}
+
+/* Messages container styling */
+/* Scrollable container for messages */
+.messages-wrapper {
+  flex: 1; /* Allow it to take available space */
+  max-height: calc(100vh - 160px); /* Adjust the height to fit your layout */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 10px;
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* Messages container styling */
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px; /* Add space to avoid overlap with the search bar */
 }
