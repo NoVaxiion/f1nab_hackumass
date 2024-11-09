@@ -1,25 +1,23 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+	"manifest_version": 2,
+	"version": "1.0.1",
+	"version_name": "v1.0.1 BETA",
+
+	"short_name": "HiFrame",
+	"name": "HiFrame - The Hyper IFRAME extension!",
+	"description": "Allow any web page to be embedded as an iframe. Only local HTTP header manipulations. Compatible with modern web security standards.",
+	"author": "Addown Studio",
+	"icons": {
+		"144": "addown-144x144.png"
+	},
+
+	"incognito": "split",
+	"offline_enabled": true,
+	"background": { "persistent": true, "scripts": ["background.js"] },
+	"permissions": ["storage", "activeTab", "scripting", "webRequest", "webRequestBlocking", "https://*/*", "http://*/*", "wss://*/*", "ws://*/*"],
+	"host_permissions": ["<all_urls>"],
+
+	"web_accessible_resources": [ "extension.json"]
 }
