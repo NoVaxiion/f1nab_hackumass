@@ -2,11 +2,11 @@ import sqlite3
 import pinecone
 from sentence_transformers import SentenceTransformer
 
-# Initialize Pinecone and Sentence Transformer
+
 pinecone.init(api_key="746ffef8-d626-4248-9a92-efb213a2a5b9 ", environment="us-east-1")
 index_name = "hackumass"
 if index_name not in pinecone.list_indexes():
-    pinecone.create_index(index_name, dimension=384, metric="cosine")  # Dimension matches MiniLM-L6-v2
+    pinecone.create_index(index_name, dimension=384, metric="cosine")  # Dimension matches MiniLM-L6-v2 since it was 3072 for pinecone but it was being annoying so had to refactor"
 index = pinecone.Index(index_name)
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
