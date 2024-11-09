@@ -1,13 +1,24 @@
 import sqlite3
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-pinecone.init(api_key="746ffef8-d626-4248-9a92-efb213a2a5b9 ", environment="us-east-1")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+
+pc = Pinecone(api_key=PINECONE_API_KEY)
+
 index_name = "hackumass"
-if index_name not in pinecone.list_indexes():
-    pinecone.create_index(index_name, dimension=384, metric="cosine")  # Dimension matches MiniLM-L6-v2 since it was 3072 for pinecone but it was being annoying so had to refactor"
-index = pinecone.Index(index_name)
+if index_name not in pc.list_indexes().names():
+    pc.create_index(
+        name=index_name,
+        dimension=384,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1")
+    )
+index = pc.Index(index_name)
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
@@ -20,10 +31,11 @@ def generate_embedding(text):
 def check_and_store_embedding(text, metadata, entry_id):
     response = index.query(vector=generate_embedding(text), top_k=1, filter=metadata)
     if response.get("matches") and response["matches"][0]["id"] == entry_id:
+        print(f"Skipped already embedded entry: {entry_id}")
         return
-
     embedding = generate_embedding(text)
     index.upsert([(entry_id, embedding, metadata)])
+    print(f"Embedded new entry: {entry_id}")
 
 def upload_race_data():
     cursor.execute("SELECT * FROM races")
