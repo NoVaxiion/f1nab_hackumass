@@ -1,76 +1,75 @@
-import requests
-import sqlite3
-import json
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
 
-# Function to fetch F1 race data
-def fetch_f1_data(years):
-    base_url = "https://ergast.com/api/f1"
-    all_races = []
-    
-    for year in years:
-        url = f"{base_url}/{year}.json"
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            data = response.json()
-            races = data['MRData']['RaceTable']['Races']
-            
-            if races:
-                for race in races:
-                    race_info = {
-                        "year": year,
-                        "race_name": race['raceName'],
-                        "date": race['date'],
-                        "circuit_name": race['Circuit']['circuitName'],
-                        "location": race['Circuit']['Location']['locality'],
-                        "country": race['Circuit']['Location']['country']
-                    }
-                    all_races.append(race_info)
-        else:
-            print(f"Failed to fetch data for {year} (Status Code: {response.status_code})")
-    
-    return all_races
+# Set up Chrome options
+options = Options()
+options.add_argument('--headless')  # Run in headless mode (optional)
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
 
-# Function to insert data into the database
-def insert_f1_data(races):
-    conn = sqlite3.connect('f1_race_data.db')
-    cursor = conn.cursor()
-    
-    # Create table if it doesn't exist
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS races (
-            id INTEGER PRIMARY KEY,
-            year INTEGER,
-            race_name TEXT,
-            date TEXT,
-            circuit_name TEXT,
-            location TEXT,
-            country TEXT
-        )
-    ''')
-    
-    # Insert race data into the table
+# Specify the path to your ChromeDriver
+service = Service("C:\\path\\to\\chromedriver.exe")  # Replace with your actual path to chromedriver.exe
+
+# Initialize the Chrome driver
+driver = webdriver.Chrome(service=service, options=options)
+
+# Define the URL you want to scrape
+url = "https://www.formula1.com/en/results.html"  # Example URL; replace with the actual URL
+driver.get(url)
+time.sleep(2)  # Allow some time for the page to load
+
+# Example scraping logic to gather race data
+race_data = []
+
+# Find all race entries on the page
+try:
+    races = driver.find_elements(By.CSS_SELECTOR, ".race-entry")  # Update selector based on actual HTML structure
     for race in races:
-        cursor.execute('''
-            INSERT INTO races (year, race_name, date, circuit_name, location, country)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (race['year'], race['race_name'], race['date'], race['circuit_name'], race['location'], race['country']))
-    
-    conn.commit()
-    conn.close()
-    print("Database filled successfully.")
+        race_name = race.find_element(By.CSS_SELECTOR, ".race-name").text  # Replace with actual selector for race name
+        year = 2024  # Set the year or get it dynamically if available on the page
 
-# Main function to fetch and store data
-def main():
-    # Specify the years for which you want to fetch the data
-    years = [2010, 2011, 2012, 2013, 2014, 2015]
-    
-    # Fetch F1 race data
-    races = fetch_f1_data(years)
-    
-    # Insert the data into the database
-    insert_f1_data(races)
+        # Go to the race-specific page for lap details
+        race_url = race.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
+        driver.get(race_url)
+        time.sleep(2)  # Allow time for the race page to load
 
-# Run the script
-if __name__ == "__main__":
-    main()
+        # Scrape lap times from the race page
+        lap_times = []
+        lap_table = driver.find_element(By.CSS_SELECTOR, ".lap-time-table")  # Update selector as needed
+        rows = lap_table.find_elements(By.TAG_NAME, "tr")
+
+        for lap_no, row in enumerate(rows, start=1):
+            columns = row.find_elements(By.TAG_NAME, "td")
+            if columns:
+                driver_name = columns[0].text
+                lap_time = columns[1].text
+                lap_times.append({
+                    "driver_name": driver_name,
+                    "lap_no": lap_no,
+                    "lap_time": lap_time
+                })
+
+        # Add data to race_data list
+        race_data.append({
+            "race_name": race_name,
+            "year": year,
+            "lap_times": lap_times
+        })
+
+        # Navigate back to the main results page
+        driver.get(url)
+        time.sleep(2)
+except Exception as e:
+    print("An error occurred during scraping:", e)
+
+# Close the driver
+driver.quit()
+
+# Print out the scraped race data
+for race in race_data:
+    print(f"Race: {race['race_name']} ({race['year']})")
+    for lap in race['lap_times']:
+        print(f"Driver: {lap['driver_name']}, Lap: {lap['lap_no']}, Time: {lap['lap_time']}")
