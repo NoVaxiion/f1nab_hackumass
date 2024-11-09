@@ -1,75 +1,153 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
+import requests
+import sqlite3
 import time
 
-# Set up Chrome options
-options = Options()
-options.add_argument('--headless')  # Run in headless mode (optional)
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
+conn = sqlite3.connect('f1_race_data.db')
+cursor = conn.cursor()
 
-# Specify the path to your ChromeDriver
-service = Service("C:\\path\\to\\chromedriver.exe")  # Replace with your actual path to chromedriver.exe
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS races (
+    race_id TEXT PRIMARY KEY,
+    season INTEGER,
+    round INTEGER,
+    race_name TEXT,
+    date TEXT,
+    circuit_id TEXT,
+    circuit_name TEXT,
+    location TEXT,
+    country TEXT
+)
+''')
 
-# Initialize the Chrome driver
-driver = webdriver.Chrome(service=service, options=options)
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS drivers (
+    driver_id TEXT PRIMARY KEY,
+    code TEXT,
+    forename TEXT,
+    surname TEXT,
+    nationality TEXT
+)
+''')
 
-# Define the URL you want to scrape
-url = "https://www.formula1.com/en/results.html"  # Example URL; replace with the actual URL
-driver.get(url)
-time.sleep(2)  # Allow some time for the page to load
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS lap_times (
+    race_id TEXT,
+    driver_id TEXT,
+    lap INTEGER,
+    position INTEGER,
+    time TEXT,
+    milliseconds INTEGER,
+    FOREIGN KEY (race_id) REFERENCES races (race_id),
+    FOREIGN KEY (driver_id) REFERENCES drivers (driver_id)
+)
+''')
 
-# Example scraping logic to gather race data
-race_data = []
+conn.commit()
 
-# Find all race entries on the page
-try:
-    races = driver.find_elements(By.CSS_SELECTOR, ".race-entry")  # Update selector based on actual HTML structure
+def fetch_data(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error fetching data: {response.status_code}")
+        return None
+
+driver_cache = {}
+
+for season in range(2000, 2025):
+    print(f"Fetching data for season {season}...")
+    races_url = f'http://ergast.com/api/f1/{season}.json'
+    races_data = fetch_data(races_url)
+    if not races_data:
+        print(f"No data found for season {season}")
+        continue
+
+    races = races_data['MRData']['RaceTable']['Races']
     for race in races:
-        race_name = race.find_element(By.CSS_SELECTOR, ".race-name").text  # Replace with actual selector for race name
-        year = 2024  # Set the year or get it dynamically if available on the page
+        race_id = race['url'].split('/')[-1]
 
-        # Go to the race-specific page for lap details
-        race_url = race.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
-        driver.get(race_url)
-        time.sleep(2)  # Allow time for the race page to load
+        cursor.execute("SELECT 1 FROM races WHERE race_id = ?", (race_id,))
+        if cursor.fetchone():
+            print(f" - Skipping already processed race: {race_id}")
+            continue
 
-        # Scrape lap times from the race page
-        lap_times = []
-        lap_table = driver.find_element(By.CSS_SELECTOR, ".lap-time-table")  # Update selector as needed
-        rows = lap_table.find_elements(By.TAG_NAME, "tr")
+        race_name = race['raceName']
+        round_number = int(race['round'])
+        date = race['date']
+        circuit = race['Circuit']
+        circuit_id = circuit['circuitId']
+        circuit_name = circuit['circuitName']
+        location = circuit['Location']
+        locality = location['locality']
+        country = location['country']
 
-        for lap_no, row in enumerate(rows, start=1):
-            columns = row.find_elements(By.TAG_NAME, "td")
-            if columns:
-                driver_name = columns[0].text
-                lap_time = columns[1].text
-                lap_times.append({
-                    "driver_name": driver_name,
-                    "lap_no": lap_no,
-                    "lap_time": lap_time
-                })
+        cursor.execute('''
+        INSERT OR IGNORE INTO races (race_id, season, round, race_name, date, circuit_id, circuit_name, location, country)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (race_id, season, round_number, race_name, date, circuit_id, circuit_name, locality, country))
 
-        # Add data to race_data list
-        race_data.append({
-            "race_name": race_name,
-            "year": year,
-            "lap_times": lap_times
-        })
+        print(f" - Processed race: {race_name} (Round {round_number})")
 
-        # Navigate back to the main results page
-        driver.get(url)
-        time.sleep(2)
-except Exception as e:
-    print("An error occurred during scraping:", e)
+        laps_url = f'http://ergast.com/api/f1/{season}/{round_number}/laps.json?limit=2000'
+        laps_data = fetch_data(laps_url)
+        if not laps_data or 'Laps' not in laps_data['MRData']['RaceTable']['Races'][0]:
+            print(f"   No lap data found for race: {race_name}")
+            continue
 
-# Close the driver
-driver.quit()
+        laps = laps_data['MRData']['RaceTable']['Races'][0]['Laps']
+        for lap in laps:
+            lap_number = int(lap['number'])
+            timings = lap['Timings']
+            for timing in timings:
+                driver_id = timing['driverId']
+                position = int(timing['position'])
+                time_str = timing['time']
 
-# Print out the scraped race data
-for race in race_data:
-    print(f"Race: {race['race_name']} ({race['year']})")
-    for lap in race['lap_times']:
-        print(f"Driver: {lap['driver_name']}, Lap: {lap['lap_no']}, Time: {lap['lap_time']}")
+                try:
+                    time_parts = time_str.split(':')
+                    if len(time_parts) == 2:
+                        minutes, seconds = map(float, time_parts)
+                        milliseconds = int(minutes * 60000 + seconds * 1000)
+                    elif len(time_parts) == 3:
+                        hours, minutes, seconds = map(float, time_parts)
+                        milliseconds = int(hours * 3600000 + minutes * 60000 + seconds * 1000)
+                    else:
+                        print(f"Unexpected time format: {time_str}")
+                        milliseconds = None
+                except ValueError:
+                    print(f"Error parsing time: {time_str}")
+                    milliseconds = None
+
+                if milliseconds is not None:
+                    if driver_id not in driver_cache:
+                        driver_url = f'http://ergast.com/api/f1/drivers/{driver_id}.json'
+                        driver_data = fetch_data(driver_url)
+                        if driver_data:
+                            driver_info = driver_data['MRData']['DriverTable']['Drivers'][0]
+                            code = driver_info.get('code', '')
+                            forename = driver_info['givenName']
+                            surname = driver_info['familyName']
+                            nationality = driver_info['nationality']
+
+                            driver_cache[driver_id] = (code, forename, surname, nationality)
+                            cursor.execute('''
+                            INSERT OR IGNORE INTO drivers (driver_id, code, forename, surname, nationality)
+                            VALUES (?, ?, ?, ?, ?)
+                            ''', (driver_id, code, forename, surname, nationality))
+                    else:
+                        code, forename, surname, nationality = driver_cache[driver_id]
+
+                    cursor.execute('''
+                    INSERT INTO lap_times (race_id, driver_id, lap, position, time, milliseconds)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (race_id, driver_id, lap_number, position, time_str, milliseconds))
+                else:
+                    print(f"Skipping lap time due to parsing error: {time_str}")
+
+        time.sleep(0.25)
+
+    conn.commit()
+    print(f"Data committed for season {season}")
+
+conn.close()
+print("Data collection complete.")
