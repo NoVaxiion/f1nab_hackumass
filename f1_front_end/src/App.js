@@ -39,9 +39,15 @@ function App() {
         style={iframeStyle}
         src="https://f1tv.formula1.com/" // Replace with your video URL
         title="F1 TV Embedding"
+        name="iframe"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
         ></iframe>
+        <button onClick={() => window.open('https://f1tv.formula1.com/', '_blank')}>
+            Open F1 TV
+        </button>
+        {/* <iframe stlye={iframeStyle} src="external.htm" name="iframe"></iframe> */}
+        {/* <a href="http://f1tv.formula1.com/" target="iframe">SO</a> */}
       </div>
 
       {/* Box for the Chat AI */}
