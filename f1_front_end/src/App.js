@@ -9,18 +9,35 @@ import { useState } from 'react';
 // }
 
 
+const containerStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  height: '100vh',
+};
 
 
+const chatBoxContainerStyle = {
+  // flex: '1',
+  marginright: '100px',
+  display: 'flex',
+  flexDirection: 'column'
+}
+
+const iframeStyle = {
+  width: "1100px",
+  height: "750px",
+  title: "F1 TV Embedding"
+}
 
 function App() {
   return (
-    <div>
+    <div style={containerStyle}>
       {/* Box for Embedding*/}
-      <div id="embedding-box">
-        <iframe 
-        width="800px"
-        height="600px"
-        src="https://f1tv.formula1.com/search?igu=1" // Replace with your video URL
+      <div id="embedding-box" padding="10px">
+        <iframe
+        style={iframeStyle}
+        src="https://f1tv.formula1.com/" // Replace with your video URL
         title="F1 TV Embedding"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
@@ -28,12 +45,14 @@ function App() {
       </div>
 
       {/* Box for the Chat AI */}
-      <div id="aichat-box">
-        <div id="input">
+      <div id="aichat-box" style={chatBoxContainerStyle}>
+        <div id="input" padding="8px">
+      
           <p><strong>User:</strong> Hello there!</p>
           <p><strong>Bot:</strong> Hi! How can I help you?</p>
         </div>
-        <input type="text" placeholder="Type your message..."/>
+
+        <input padding="8px 16px" marginLeft="5px" type="text" placeholder="Type your message..."/>
         <button>Send</button>
       </div>
       
