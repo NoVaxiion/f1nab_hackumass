@@ -1,24 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import { useState } from 'react';
+
+
+// const chatBot = () => {
+//   const [messages, setMessages] = useState([]);
+//   const [input, setInput] = useState('');
+// }
+
+
+
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      // Box for Embedding
+      <div id="embedding-box">
+        <iframe 
+        src="input link here" 
+        title="embedded video"
+        allowFullScreen
+        ></iframe>
+      </div>
+
+      // Box for the Chat AI
+      <div id="aichat-box">
+        <div id="input">
+          <p><strong>User:</strong> Hello there!</p>
+          <p><strong>Bot:</strong> Hi! How can I help you?</p>
+        </div>
+        <input type="text" placeholder="Type your message..."/>
+        <button>Send</button>
+      </div>
+      
     </div>
+    
   );
 }
 
