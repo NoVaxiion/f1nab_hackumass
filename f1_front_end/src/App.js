@@ -42,7 +42,6 @@ function App() {
           }}
           src="https://f1tv.formula1.com/"
           title="F1 TV Embedding"
-        name="iframe"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         ></iframe>
