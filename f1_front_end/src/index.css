@@ -4,6 +4,7 @@ html, body {
   margin: 0;             
   padding: 0;            
   overflow: hidden;      
+  font-family: 'Oswald', sans-serif;
 }
 
 #container {
@@ -57,7 +58,8 @@ html, body {
   display: flex;               
   justify-content: flex-start; 
   align-items: center;        
-  gap: 10px;                  
+  gap: 10px;             
+  font-family: 'Oswald', sans-serif;     
 }
 
 .search-bar {
@@ -126,6 +128,7 @@ html, body {
   line-height: 1.5;
   word-wrap: break-word;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Oswald', sans-serif;
 }
 
 /* User chat bubble */
@@ -136,6 +139,7 @@ html, body {
   text-align: right;
   border-bottom-right-radius: 5px;
   border-top-left-radius: 20px;
+  font-family: 'Oswald', sans-serif;
 }
 
 /* Bot chat bubble */

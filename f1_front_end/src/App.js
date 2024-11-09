@@ -25,7 +25,6 @@ function App() {
 
   return (
     <div id="container">
-      {/* Box for Embedding */}
       <div id="embedding-box">
         <iframe
           style={{
@@ -40,32 +39,28 @@ function App() {
         ></iframe>
       </div>
 
-      {/* Box for the Chat AI */}
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
         <div id="aichat-box-inner">
-          {/* Conditionally render the initial bot message */}
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
-              <p className="text">What would you like to know about F1 Racing?</p>
+              <p className="text">Enter a race and its year you would like to learn about?</p>
             </div>
           )}
 
-          {/* Wrapper for the messages */}
           <div className="messages-wrapper">
-            {/* Scrollable container for the conversation */}
             <div
               id="input"
               className="messages-container"
               style={{
                 position: 'absolute',
-                top: messageSent ? '20px' : '100px', // "Teleport" to top after the first message
+                top: messageSent ? '20px' : '100px',
                 left: '0',
                 right: '0',
                 margin: '0 auto',
                 maxWidth: '500px',
-                height: messageSent ? 'calc(100vh - 150px)' : 'auto', // Adjust height when moved to top
+                height: messageSent ? 'calc(100vh - 150px)' : 'auto',
                 padding: '10px',
-                overflowY: 'auto', // Enable vertical scrolling
+                overflowY: 'auto',
                 boxSizing: 'border-box',
               }}
             >
@@ -80,16 +75,15 @@ function App() {
             </div>
           </div>
 
-          {/* The search bar container */}
           <div
             className="search-bar-container"
             style={{
-              position: 'absolute', // The search bar will always be absolute within the chat box
-              bottom: messageSent ? '20px' : '330px', // Adjust bottom to start lower
-              left: '50%', // Center horizontally
-              transform: 'translateX(-50%) translateY(-50%)', // Center horizontally using transform
-              width: '80%', // Set width of the search bar
-              maxWidth: '500px', // Set a max width
+              position: 'absolute',
+              bottom: messageSent ? '20px' : '330px',
+              left: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
+              width: '80%',
+              maxWidth: '500px',
             }}
           >
             <input
@@ -98,25 +92,29 @@ function App() {
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage();
+                }
+              }}
               style={{
-                width: '80%', // Make input field smaller, taking only 80% of the container
-                padding: '10px', // Add some padding to make it look good
-                marginRight: '10px', // Space between input and button
+                width: '80%',
+                padding: '10px',
+                marginRight: '10px',
               }}
             />
             <button
               className="search-button"
               onClick={handleSendMessage}
               style={{
-                width: '15%', // Limit the button width
-                padding: '10px', // Add padding to the button
-                cursor: 'pointer', // Make button clickable
+                width: '15%',
+                padding: '10px',
+                cursor: 'pointer',
               }}
             >
-              Send
+              <span className="material-symbols-outlined">send</span>
             </button>
           </div>
-          <div className="output"></div>
         </div>
       </div>
     </div>
