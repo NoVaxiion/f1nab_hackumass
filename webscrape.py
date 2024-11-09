@@ -1,38 +1,76 @@
-from selenium import webdriver
-import pinecone 
-import time 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
+import requests
+import sqlite3
+import json
 
-pinecone.init(api_key='your-pinecone-api-key', environment='your-environment')
-index_name = 'f1-lap-times'  # or whatever we wanna call it on pinecone I think ( Kenneth pls recheck this im a tad unsure)
-
-# Fix this :  chrome_driver_path = "" 
-
-
-chrome_options = Options()
-chrome_options.add_argument('--headless') # I think this makes this a bg task I be messing around tm
-
-driver = webdriver.Chrome(service=Service(chrome_driver_path), options=chrome_options)
-
-website_url = 'https://pitwall.app/
-
-def get_race_urls_for_season(season):
-    season_url = f"https://pitwall.app/schedule/{season}" 
-    driver.get(season_url)
+# Function to fetch F1 race data
+def fetch_f1_data(years):
+    base_url = "https://ergast.com/api/f1"
+    all_races = []
     
-    time.sleep(5)  # time fakery
+    for year in years:
+        url = f"{base_url}/{year}.json"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            data = response.json()
+            races = data['MRData']['RaceTable']['Races']
+            
+            if races:
+                for race in races:
+                    race_info = {
+                        "year": year,
+                        "race_name": race['raceName'],
+                        "date": race['date'],
+                        "circuit_name": race['Circuit']['circuitName'],
+                        "location": race['Circuit']['Location']['locality'],
+                        "country": race['Circuit']['Location']['country']
+                    }
+                    all_races.append(race_info)
+        else:
+            print(f"Failed to fetch data for {year} (Status Code: {response.status_code})")
+    
+    return all_races
 
-    # Scraping the race data (assuming races are listed on the page)
-    race_links = driver.find_elements(By.CSS_SELECTOR, '.race-link')  
+# Function to insert data into the database
+def insert_f1_data(races):
+    conn = sqlite3.connect('f1_race_data.db')
+    cursor = conn.cursor()
     
-    race_urls = []
-    for link in race_links:
-        race_url = link.get_attribute('href')
-        race_urls.append(race_url)
+    # Create table if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS races (
+            id INTEGER PRIMARY KEY,
+            year INTEGER,
+            race_name TEXT,
+            date TEXT,
+            circuit_name TEXT,
+            location TEXT,
+            country TEXT
+        )
+    ''')
     
-    return race_urls
-'
-def scrape_lap_time_data(): 
+    # Insert race data into the table
+    for race in races:
+        cursor.execute('''
+            INSERT INTO races (year, race_name, date, circuit_name, location, country)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (race['year'], race['race_name'], race['date'], race['circuit_name'], race['location'], race['country']))
+    
+    conn.commit()
+    conn.close()
+    print("Database filled successfully.")
+
+# Main function to fetch and store data
+def main():
+    # Specify the years for which you want to fetch the data
+    years = [2010, 2011, 2012, 2013, 2014, 2015]
+    
+    # Fetch F1 race data
+    races = fetch_f1_data(years)
+    
+    # Insert the data into the database
+    insert_f1_data(races)
+
+# Run the script
+if __name__ == "__main__":
+    main()
