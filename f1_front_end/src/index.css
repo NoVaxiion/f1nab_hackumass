@@ -14,6 +14,22 @@ html, body {
   padding: 0;            
 }
 
+#margin-top {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  right: 0;
+  text-align: center;
+  background-color: black; 
+  z-index: 1; 
+  border-bottom: 1px solid #ffffff;
+  font-size: 15px;
+  height: 20px; /* Increase the height to fit the text */
+  line-height: 20px; /* Vertically center the text */
+  color: white;
+}
+
+
 #embedding-box {
   flex: 0 0 70%;         
   height: 100%;          
@@ -34,14 +50,13 @@ html, body {
   color: #e5e7eb;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;             
-  
+  position: relative;
   display: flex;
   flex-direction: column;       
   justify-content: center;      
   align-items: center;          
   box-sizing: border-box;      
 }
-
 
 .content-box {
   width: 80%;              

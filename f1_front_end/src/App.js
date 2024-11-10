@@ -81,8 +81,8 @@ function App() {
           allowFullScreen
         ></iframe>
       </div>
-
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
+        <div id="margin-top">f1Nab</div>
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
