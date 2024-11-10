@@ -36,7 +36,7 @@ function App() {
     if (showGreeting) {
       const timeout = setTimeout(() => {
         setFadeOut(true); 
-      }, 3000); 
+      }, 4000); 
 
       return () => clearTimeout(timeout); 
     }
@@ -60,7 +60,7 @@ function App() {
     if (fadeOut) {
       const timeout = setTimeout(() => {
         setShowGreeting(false); 
-      }, 2000); 
+      }, 6000); 
 
       return () => clearTimeout(timeout); 
     }
@@ -102,7 +102,7 @@ function App() {
               className="messages-container"
               style={{
                 position: 'absolute',
-                top: messageSent ? '20px' : '100px',
+                top: messageSent ? '60px' : '100px',
                 left: '0',
                 right: '0',
                 margin: '0 auto',

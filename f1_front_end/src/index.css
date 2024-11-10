@@ -44,7 +44,7 @@ html, body {
 
 #aichat-box {
   flex: 0 0 30%;                
-  height: 100%;                                  
+  height: 10px;                                  
   margin: 0;                
   background-color: rgb(21,21,30);
   color: #e5e7eb;
@@ -170,7 +170,7 @@ html, body {
 
 .messages-wrapper {
   flex: 1; 
-  max-height: calc(100vh - 160px); 
+  max-height: calc(100vh - 20px); 
   overflow-y: auto; 
   padding: 10px;
   box-sizing: border-box; 
@@ -198,7 +198,7 @@ html, body {
 
   opacity: 1; 
   visibility: visible; 
-  transition: opacity 0.75s ease-out, visibility 0s 2s; 
+  transition: opacity 2s ease-out, visibility 0s 10s; 
 }
 
 .greeting-popup.fade-out {
@@ -209,4 +209,9 @@ html, body {
 .greeting-content {
   font-size: 50px;
   font-weight: bold;
+  background-color: rgb(47, 47, 72);
+  /* border-radius: 10px; */
+  /* border-color: #000; */
+  
+  border: 10px solid #000;
 }
