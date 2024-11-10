@@ -75,7 +75,7 @@ function App() {
             height: "100%",
             border: "none",
           }}
-          src="https://f1tv.formula1.com/"
+          src="https://www.formula1.com/en/video"
           title="F1 TV Embedding"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
