@@ -82,7 +82,7 @@ function App() {
         ></iframe>
       </div>
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
-        <div id="margin-top">f1Nab</div>
+        <div id="margin-top">F1 NAB</div>
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
