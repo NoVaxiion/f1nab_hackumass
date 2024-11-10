@@ -1,0 +1,6 @@
+@echo off
+echo Starting Python Flask server...
+start cmd /k "cd f1nab_hackumass && python server.py"
+
+echo Starting React server...
+start cmd /k "cd f1nab_hackumass\f1_front_end && npm start"
