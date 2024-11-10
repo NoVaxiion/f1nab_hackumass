@@ -6,10 +6,9 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import re
 
-# Load environment variables
+
 load_dotenv()
 
-# Initialize API keys and configure services
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 
@@ -18,7 +17,7 @@ pc = Pinecone(api_key=pinecone_api_key)
 index = pc.Index("tester")
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Global variable to store the race context
+
 current_race = None
 chat_history = []
 
@@ -106,13 +105,13 @@ def process_query(query_text):
     """
     global current_race
 
-    # If `current_race` is not set, use the first message to set it
+   
     if not current_race:
-        # Set the first message as the race context directly
+        
         set_race_context(query_text)
         return f"Race context set to: {current_race}. Feel free to ask specific questions about this race!"
 
-    # If `current_race` is already set, proceed without prompting for context
+    
     retrieved_data = search_documents(query_text)
     response = generate_response_with_context(query_text, retrieved_data)
     add_to_chat_history(query_text, response)
