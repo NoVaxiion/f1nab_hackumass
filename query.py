@@ -29,7 +29,7 @@ def set_race_context(race_name):
     global current_race
     current_race = race_name
     print(f"Race context set to: {current_race}")
-    return f"The race context is now set to {current_race}. Ask me anything specific about this race!"
+    return f"The race context is now set to {current_race}. Feel free to ask specific questions about this race!"
 
 def document_to_vector(document):
     """
@@ -85,7 +85,8 @@ def generate_response_with_context(query, retrieved_data):
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
-        return response.text
+        # Remove any asterisks from the response text
+        return response.text.replace("**", "")
     except Exception as e:
         print(f"Error during response generation: {e}")
         return "Error: Unable to generate response from Gemini."
