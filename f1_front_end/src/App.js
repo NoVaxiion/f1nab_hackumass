@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; // Import axios for API requests
 import './App.css';
 
 function App() {
@@ -10,28 +11,43 @@ function App() {
   const messagesEndRef = useRef(null);
   const greetingRef = useRef(null); 
 
-  const handleSendMessage = () => {
+  // Function to send message to the backend API
+  const handleSendMessage = async () => {
     if (input.trim()) {
+      // Add user message to the chat
       setMessages(prevMessages => [
         ...prevMessages,
         { sender: 'user', text: input },
       ]);
-      setInput(''); 
 
-      setTimeout(() => {
+      try {
+        // Send user input to backend
+        const response = await axios.post('http://localhost:5000/api/query', { query: input });
+        
+        // Add bot response to the chat
         setMessages(prevMessages => [
           ...prevMessages,
-          { sender: 'bot', text: "Got it! What else would you like to know about F1 Racing?" } // Bot's response
+          { sender: 'bot', text: response.data.response } // Bot's response from backend
         ]);
-      }, 500);
+      } catch (error) {
+        console.error('Error querying backend:', error);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { sender: 'bot', text: "Sorry, something went wrong. Please try again." }
+        ]);
+      }
+
+      setInput(''); // Clear input field
       setMessageSent(true); 
     }
   };
 
+  // Auto-scroll to bottom of chat when new message is added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Handle greeting fade-out
   useEffect(() => {
     if (showGreeting) {
       const timeout = setTimeout(() => {
@@ -42,6 +58,7 @@ function App() {
     }
   }, [showGreeting]);
 
+  // Handle click outside of the greeting popup
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (greetingRef.current && !greetingRef.current.contains(event.target)) {
@@ -56,6 +73,7 @@ function App() {
     };
   }, []);
 
+  // Remove greeting popup after fade-out
   useEffect(() => {
     if (fadeOut) {
       const timeout = setTimeout(() => {
@@ -83,12 +101,12 @@ function App() {
       </div>
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
         <div id="margin-top">
-          <span style=
-          {{fontStyle: 'italic',
+          <span style={{
+            fontStyle: 'italic',
             color: 'rgb(225 6 0)',
             fontWeight: 'bold',
-
-          }}>F1</span> NAB</div>
+          }}>F1</span> NAB
+        </div>
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
