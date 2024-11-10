@@ -86,7 +86,7 @@ function App() {
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
-              <p className="text">Enter a race and its year you would like to learn about</p>
+              <p className="text">Enter the race and year you'd like to learn about</p>
             </div>
           )}
 
