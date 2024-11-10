@@ -75,14 +75,20 @@ function App() {
             height: "100%",
             border: "none",
           }}
-          src="https://f1tv.formula1.com/"
+          src="https://www.formula1.com/en/video"
           title="F1 TV Embedding"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         ></iframe>
       </div>
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
-        <div id="margin-top">F1 NAB</div>
+        <div id="margin-top">
+          <span style=
+          {{fontStyle: 'italic',
+            color: 'rgb(225 6 0)',
+            fontWeight: 'bold',
+
+          }}>F1</span> NAB</div>
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
@@ -91,18 +97,6 @@ function App() {
           )}
 
           <div className="messages-wrapper">
-            <div className="project-title-container"
-                 style={{
-                    borderBottomStyle: 'solid',
-                    borderColor: 'white',
-                 }}
-            >
-            <h2
-              style={{
-
-              }}
-            >F1 NAB</h2>
-            </div>
             <div
               id="input"
               className="messages-container"
