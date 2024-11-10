@@ -23,7 +23,7 @@ html, body {
   background-color: black; 
   z-index: 1; 
   border-bottom: 1px solid #ffffff;
-  font-size: 25px;
+  font-size: 28px;
   height: 28px; /* Increase the height to fit the text */
   line-height: 20px; /* Vertically center the text */
   color: white;
