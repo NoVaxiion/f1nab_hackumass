@@ -4,6 +4,7 @@ html, body {
   margin: 0;             
   padding: 0;            
   overflow: hidden;      
+  font-family: 'Oswald', sans-serif;
 }
 
 #container {
@@ -57,7 +58,8 @@ html, body {
   display: flex;               
   justify-content: flex-start; 
   align-items: center;        
-  gap: 10px;                  
+  gap: 10px;             
+  font-family: 'Oswald', sans-serif;     
 }
 
 .search-bar {
@@ -120,12 +122,13 @@ html, body {
   max-width: 70%;
   padding-left: 15px;
   padding-right: 15px;
-  margin: 20px 0;
-  border-radius: 20px;
+  margin: 5px 0;
+  border-radius: 21px;
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Oswald', sans-serif;
 }
 
 /* User chat bubble */
@@ -136,6 +139,7 @@ html, body {
   text-align: right;
   border-bottom-right-radius: 5px;
   border-top-left-radius: 20px;
+  font-family: 'Oswald', sans-serif;
 }
 
 /* Bot chat bubble */
@@ -148,20 +152,45 @@ html, body {
   border-top-right-radius: 20px;
 }
 
-/* Messages container styling */
-/* Scrollable container for messages */
 .messages-wrapper {
-  flex: 1; /* Allow it to take available space */
-  max-height: calc(100vh - 160px); /* Adjust the height to fit your layout */
-  overflow-y: auto; /* Enable vertical scrolling */
+  flex: 1; 
+  max-height: calc(100vh - 160px); 
+  overflow-y: auto; 
   padding: 10px;
-  box-sizing: border-box; /* Include padding in height calculation */
+  box-sizing: border-box; 
 }
 
-/* Messages container styling */
 .messages-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-bottom: 20px; /* Add space to avoid overlap with the search bar */
+  padding-bottom: 20px; 
+}
+
+.greeting-popup {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  max-width: 700px;
+  text-align: center;
+
+  opacity: 1; 
+  visibility: visible; 
+  transition: opacity 0.75s ease-out, visibility 0s 2s; 
+}
+
+.greeting-popup.fade-out {
+  opacity: 0; 
+  visibility: hidden; 
+}
+
+.greeting-content {
+  font-size: 50px;
+  font-weight: bold;
 }
