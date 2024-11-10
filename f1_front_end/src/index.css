@@ -23,10 +23,11 @@ html, body {
   background-color: black; 
   z-index: 1; 
   border-bottom: 1px solid #ffffff;
-  font-size: 15px;
-  height: 20px; /* Increase the height to fit the text */
+  font-size: 28px;
+  height: 28px; /* Increase the height to fit the text */
   line-height: 20px; /* Vertically center the text */
   color: white;
+  line-height: 24px;
 }
 
 

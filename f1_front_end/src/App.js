@@ -82,11 +82,11 @@ function App() {
         ></iframe>
       </div>
       <div id="aichat-box" style={{ position: 'relative', height: '100vh' }}>
-        <div id="margin-top">f1Nab</div>
+        <div id="margin-top">F1 NAB</div>
         <div id="aichat-box-inner">
           {messages.length === 0 && !messageSent && (
             <div className="input-container">
-              <p className="text">Enter a race and its year you would like to learn about</p>
+              <p className="text">Enter the race and year you'd like to learn about</p>
             </div>
           )}
 
