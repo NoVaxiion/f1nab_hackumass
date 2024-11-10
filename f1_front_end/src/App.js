@@ -1,27 +1,70 @@
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import React, { useState } from 'react';
 
 function App() {
-  // State for storing messages
   const [messages, setMessages] = useState([]);
-  // State for storing input text
   const [input, setInput] = useState('');
-  // State to track if a message has been sent (to move the search bar)
   const [messageSent, setMessageSent] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(true);  
+  const [fadeOut, setFadeOut] = useState(false); 
+  const messagesEndRef = useRef(null);
+  const greetingRef = useRef(null); 
 
-  // Handle sending a message
   const handleSendMessage = () => {
     if (input.trim()) {
-      // Add user's message and bot's response to messages
       setMessages(prevMessages => [
         ...prevMessages,
         { sender: 'user', text: input },
-        { sender: 'bot', text: "Got it! What else would you like to know about F1 Racing?" } // Bot's response
       ]);
-      setInput(''); // Clear input field
-      setMessageSent(true); // Set messageSent to true to move the search bar down
+      setInput(''); 
+
+      setTimeout(() => {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { sender: 'bot', text: "Got it! What else would you like to know about F1 Racing?" } // Bot's response
+        ]);
+      }, 500);
+      setMessageSent(true); 
     }
   };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    if (showGreeting) {
+      const timeout = setTimeout(() => {
+        setFadeOut(true); 
+      }, 3000); 
+
+      return () => clearTimeout(timeout); 
+    }
+  }, [showGreeting]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (greetingRef.current && !greetingRef.current.contains(event.target)) {
+        setShowGreeting(false); 
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside); 
+    };
+  }, []);
+
+  useEffect(() => {
+    if (fadeOut) {
+      const timeout = setTimeout(() => {
+        setShowGreeting(false); 
+      }, 2000); 
+
+      return () => clearTimeout(timeout); 
+    }
+  }, [fadeOut]);
 
   return (
     <div id="container">
@@ -72,6 +115,7 @@ function App() {
                   <p>{message.text}</p>
                 </div>
               ))}
+              <div ref={messagesEndRef} /> {/* This is the "scroll-to-bottom" ref */}
             </div>
           </div>
 
@@ -117,6 +161,18 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Greeting popup */}
+      {showGreeting && (
+        <div
+          className={`greeting-popup ${fadeOut ? 'fade-out' : ''}`}
+          ref={greetingRef}
+        >
+          <div className="greeting-content">
+            <p>Welcome! How can I assist you with F1 Racing?</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
