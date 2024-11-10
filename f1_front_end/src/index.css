@@ -1,0 +1,213 @@
+/* Ensure that the body and html are set to 100% height */
+html, body {
+  height: 100%;          
+  margin: 0;             
+  padding: 0;            
+  overflow: hidden;      
+  font-family: 'Oswald', sans-serif;
+}
+
+#container {
+  display: flex;         
+  height: 100vh;         
+  margin: 0;             
+  padding: 0;            
+}
+
+#margin-top {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  right: 0;
+  text-align: center;
+  background-color: black; 
+  z-index: 1; 
+  border-bottom: 1px solid #ffffff;
+  font-size: 28px;
+  height: 28px; /* Increase the height to fit the text */
+  line-height: 20px; /* Vertically center the text */
+  color: white;
+  line-height: 24px;
+}
+
+
+#embedding-box {
+  flex: 0 0 70%;         
+  height: 100%;          
+  margin: 0;             
+  padding: 0;            
+  display: flex;         
+  justify-content: center; 
+  align-items: center;   
+  box-sizing: border-box;  
+}
+
+#aichat-box {
+  flex: 0 0 30%;                
+  height: 100%;                 
+  padding: 0;                   
+  margin: 0;                    
+  background-color: rgb(21,21,30);
+  color: #e5e7eb;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;             
+  position: relative;
+  display: flex;
+  flex-direction: column;       
+  justify-content: center;      
+  align-items: center;          
+  box-sizing: border-box;      
+  border-left: 2px solid white;
+}
+
+.content-box {
+  width: 80%;              
+  background-color: #333;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;    
+  align-items: center;       
+}
+
+.search-bar-container {
+  display: flex;               
+  justify-content: flex-start; 
+  align-items: center;        
+  gap: 10px;             
+  font-family: 'Oswald', sans-serif;     
+}
+
+.search-bar {
+  width: 100%;                 
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 25px;
+  outline: none;             
+}
+
+.search-button {
+  padding: 11.5px 15px;
+  font-size: 16px;
+  border: none;
+  background-color: rgb(225 6 0);
+  color: #e5e7eb;
+  border-radius: 25px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background-color 0.26s ease;
+}
+
+.search-button:hover {
+  background-color: #e5e7eb;
+  color: rgb(255 6 0);
+}
+
+.search-button:active {
+  opacity: 0.65;
+}
+
+.input-container {
+  display: inline-block;
+  font-size: 1.2em;
+  white-space: nowrap;
+  border-right: 2.5px solid;
+  overflow: hidden;
+  max-width: 0;
+  animation: typing 2.3s steps(47) forwards, cursor 0.4s step-end infinite alternate;
+  line-height: 0.01em;
+}
+
+@keyframes cursor {
+  50% { border-color: transparent; }
+}
+
+@keyframes typing {
+  from { max-width: 0; }
+  to { max-width: 100%; } 
+}
+
+.text {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Chat bubble styles */
+.chat-bubble {
+  max-width: 70%;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 5px 0;
+  border-radius: 21px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Oswald', sans-serif;
+}
+
+/* User chat bubble */
+.user-bubble {
+  background-color: rgb(225 6 0);
+  color: #e5e7eb;
+  align-self: flex-end;
+  text-align: right;
+  border-bottom-right-radius: 5px;
+  border-top-left-radius: 20px;
+  font-family: 'Oswald', sans-serif;
+}
+
+/* Bot chat bubble */
+.bot-bubble {
+  background-color: #e5e5ea;
+  color: #000;
+  align-self: flex-start;
+  text-align: left;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 20px;
+}
+
+.messages-wrapper {
+  flex: 1; 
+  max-height: calc(100vh - 160px); 
+  overflow-y: auto; 
+  padding: 10px;
+  box-sizing: border-box; 
+}
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px; 
+}
+
+.greeting-popup {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  max-width: 700px;
+  text-align: center;
+
+  opacity: 1; 
+  visibility: visible; 
+  transition: opacity 0.75s ease-out, visibility 0s 2s; 
+}
+
+.greeting-popup.fade-out {
+  opacity: 0; 
+  visibility: hidden; 
+}
+
+.greeting-content {
+  font-size: 50px;
+  font-weight: bold;
+}
