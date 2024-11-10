@@ -91,6 +91,18 @@ function App() {
           )}
 
           <div className="messages-wrapper">
+            <div className="project-title-container"
+                 style={{
+                    borderBottomStyle: 'solid',
+                    borderColor: 'white',
+                 }}
+            >
+            <h2
+              style={{
+
+              }}
+            >F1 NAB</h2>
+            </div>
             <div
               id="input"
               className="messages-container"
