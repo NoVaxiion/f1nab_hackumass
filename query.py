@@ -6,87 +6,80 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import re
 
+# Load environment variables
 load_dotenv()
 
+# Initialize API keys and configure services
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 
-if not gemini_api_key:
-   print("Error: GEMINI_API_KEY not found in environment variables.")
-if not pinecone_api_key:
-   print("Error: PINECONE_API_KEY not found in environment variables.")
-
 genai.configure(api_key=gemini_api_key)
-
 pc = Pinecone(api_key=pinecone_api_key)
 index = pc.Index("tester")
-
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
 
+# Global variable to store the race context
+current_race = None
 chat_history = []
 
-current_race = None
-
-def set_current_race(race_name):
+def set_race_context(race_name):
+    """
+    Sets the global race context.
+    """
     global current_race
     current_race = race_name
-    print(f"Context set to: {current_race}")
-
-def detect_race_change(query):
-    global current_race
-    race_pattern = r'\b(\d{4}\s+[A-Za-z]+\s+GP)\b'
-    match = re.search(race_pattern, query, re.IGNORECASE)
-    if match:
-        new_race = match.group(1)
-        if new_race != current_race:
-            set_current_race(new_race)
+    print(f"Race context set to: {current_race}")
+    return f"The race context is now set to {current_race}. Ask me anything specific about this race!"
 
 def document_to_vector(document):
-   vector = sentence_model.encode(document)
-   return vector
+    """
+    Encodes a document into a vector using the sentence transformer model.
+    """
+    return sentence_model.encode(document)
 
 def search_documents(query):
-    detect_race_change(query)
-
-    if not current_race:
-        print("No race context set. Please specify the race.")
-        return []
-
+    """
+    Searches Pinecone using the vectorized form of the query.
+    """
     query_vector = document_to_vector(query)
     query_vector = np.array(query_vector).tolist()
 
     try:
         results = index.query(vector=query_vector, top_k=5)
         matches = results.get("matches", [])
-        if matches:
-            return [match.get("metadata", {}) for match in matches]
-        else:
-            print("No matches found.")
-            return []
+        return [match.get("metadata", {}) for match in matches if isinstance(match.get("metadata"), dict)]
     except Exception as e:
         print(f"Error during Pinecone search: {e}")
         return []
 
 def generate_response_with_context(query, retrieved_data):
+    """
+    Generates a response using Gemini API with context provided by Pinecone data.
+    """
+    race_info = current_race if current_race else "an unspecified race"
+
+    context_details = ""
     if retrieved_data:
         context_details = "\n".join([
-            f"Race Name: {d.get('race_name', 'N/A')}, Driver: {d.get('driver_name', 'N/A')}, "
-            f"Lap Count: {d.get('lap_count', 'N/A')}, Lap Time: {d.get('lap_time', 'N/A')}"
-            for d in retrieved_data
+            f"Race Name: {d.get('race_name', '')}, Driver: {d.get('driver_name', '')}, "
+            f"Lap Count: {d.get('lap_count', '')}, Lap Time: {d.get('lap_time', '')}"
+            for d in retrieved_data if isinstance(d, dict)
         ])
-    else:
-        context_details = "No specific data available from Pinecone."
+
+    # Clean up extraneous commas or empty fields
+    context_details = re.sub(r",\s+", ", ", context_details)
+    context_details = context_details.replace(", None", "").replace("None", "").strip()
 
     prompt = f"""
-    You are assisting a user with questions about the {current_race} in Formula 1.
+    You are assisting a user with questions about the {race_info} in Formula 1.
 
     User query: '{query}'
 
-    Relevant information from Pinecone:
+    Relevant information from Pinecone (if available):
     {context_details}
 
-    Based on this information, please provide a detailed and accurate response about the {current_race}.
-    If additional general knowledge is needed to answer the query, incorporate it. Specify clearly if the response is based on data from Pinecone or your general knowledge.
+    Based on this information, please provide a detailed and accurate response about the {race_info}.
+    If there is no specific data from Pinecone, use your own knowledge to answer the query without mentioning Pinecone.
     """
 
     try:
@@ -98,32 +91,28 @@ def generate_response_with_context(query, retrieved_data):
         return "Error: Unable to generate response from Gemini."
 
 def add_to_chat_history(query, response):
+    """
+    Adds a new query-response pair to the chat history with FIFO handling.
+    """
     global chat_history
     if len(chat_history) >= 5:
         chat_history.pop(0)
     chat_history.append({"query": query, "response": response})
 
-def main():
-    global chat_history
+def process_query(query_text):
+    """
+    Processes a query by searching Pinecone and generating a response.
+    """
+    global current_race
 
-    initial_race = input("Which race are you watching (e.g., '2020 Turkey GP')? ")
-    set_current_race(initial_race)
+    # If `current_race` is not set, use the first message to set it
+    if not current_race:
+        # Set the first message as the race context directly
+        set_race_context(query_text)
+        return f"Race context set to: {current_race}. Feel free to ask specific questions about this race!"
 
-    while True:
-        user_query = input("Please enter your query (or type 'exit' to quit): ")
-
-        if user_query.lower() == "exit":
-            print("Exiting the program.")
-            break
-
-        retrieved_data = search_documents(user_query)
-
-        if retrieved_data:
-            response = generate_response_with_context(user_query, retrieved_data)
-            print(response)
-            add_to_chat_history(user_query, response)
-        else:
-            print("No relevant documents found in Pinecone.")
-
-if __name__ == "__main__":
-    main()
+    # If `current_race` is already set, proceed without prompting for context
+    retrieved_data = search_documents(query_text)
+    response = generate_response_with_context(query_text, retrieved_data)
+    add_to_chat_history(query_text, response)
+    return response
