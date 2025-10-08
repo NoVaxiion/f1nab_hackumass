@@ -35,4 +35,4 @@ This repository remains available for reference and educational purposes.
 ---
 
 ## 👥 Contributors
-Developed by **Kenneth Maeda** and collaborators during **HackUMass**.
+Developed by **Kenneth Maeda**, **Sergio Montudar**, **Aditya Manoj Krishna**, and ** Ryan Nguyen** during **HackUMass**.
