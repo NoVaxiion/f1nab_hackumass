@@ -82,13 +82,17 @@ def generate_response_with_context(query, retrieved_data):
     """
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+
+
         response = model.generate_content(prompt)
         # Remove any asterisks from the response text
         return response.text.replace("**", "")
     except Exception as e:
-        print(f"Error during response generation: {e}")
-        return "Error: Unable to generate response from Gemini."
+        import traceback
+        print("Gemini exception:\n", traceback.format_exc())
+        return f"Error: Unable to generate response from Gemini. ({e})"
+
 
 def add_to_chat_history(query, response):
     """
