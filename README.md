@@ -49,7 +49,7 @@ F1NAB explored how **AI**, **automation**, and **semantic data search** can be c
 | Layer | Tools |
 |-------|-------|
 | **Frontend** | React.js, Axios, CSS3 |
-| **Backend (AI)** | Node.js, Express.js, OpenAI API |
+| **Backend (AI)** | Node.js, Express.js, Gemini API |
 | **Legacy Backend** | Python, BeautifulSoup, Pinecone, SQLite |
 | **Database** | Pinecone Vector DB *(remote / private)* |
 
@@ -57,10 +57,10 @@ F1NAB explored how **AI**, **automation**, and **semantic data search** can be c
 
 ## 👥 Contributors
 
-- **Kenneth Maeda** — AI integration, backend development, web scraping  
-- **Sergio Montudar** — Frontend and API infrastructure  
-- **Aditya Manoj Krishna** — Data processing and embeddings  
-- **Ryan Nguyen** — Frontend and integration  
+- **Kenneth Maeda** — AI integration, backend development, web scraping, data processing and embeddings  
+- **Sergio Montudar** — Frontend and API infrastructure, and integration  
+- **Aditya Manoj Krishna** — Data processing, embeddings, backend development  
+- **Ryan Nguyen** — Frontend, API infrastructure, and integration  
 
 Developed at **HackUMass**, then finalized as a **UI concept fork** for documentation and preservation.
 
