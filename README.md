@@ -3,6 +3,7 @@
 **F1NAB** (Formula 1 News & Analysis Bot) is a hybrid AI assistant and data analytics project originally developed during **HackUMass**.  
 It began as a **Python-based scraper and vector search tool**, later rebuilt as a **React + Node.js AI chat interface** styled after the Formula 1 brand.
 
+**Note**: This project hasn't been uploaded to Vercel so Forking this Repo without the APIs won't function. Sorry!
 ---
 
 ## ⚙️ Repository Purpose
