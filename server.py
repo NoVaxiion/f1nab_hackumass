@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from query import set_race_context, process_query
+from f1nab_hackumass.query import set_race_context, process_query
 
 app = Flask(__name__)
 CORS(app)
