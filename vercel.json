@@ -2,11 +2,6 @@
   "version": 2,
   "buildCommand": "cd f1_front_end && npm run build",
   "outputDirectory": "f1_front_end/build",
-  "functions": {
-    "api/index.py": {
-      "runtime": "@vercel/python@3.8"
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
