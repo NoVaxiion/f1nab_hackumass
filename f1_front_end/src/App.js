@@ -33,14 +33,13 @@ function App() {
     setMessageSent(true);
 
     try {
-      // Use relative path for API calls (works on both localhost and Vercel)
+      // Use relative path for API (works on both localhost and Vercel)
       const res = await axios.post("/api/query", {
         query: input,
       });
       const cleaned = cleanText(res.data.response);
       setMessages((prev) => [...prev, { sender: "bot", text: cleaned }]);
     } catch (error) {
-      console.error("API Error:", error);
       setMessages((prev) => [
         ...prev,
         {
