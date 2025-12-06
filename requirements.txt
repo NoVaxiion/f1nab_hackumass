@@ -3,7 +3,4 @@ flask-cors==4.0.0
 google-generativeai==0.8.5
 pinecone==7.3.0
 python-dotenv==1.2.1
-sentence-transformers==5.1.2
-numpy==1.26.4
-scipy==1.12.0
-scikit-learn==1.7.2
+requests==2.31.0
