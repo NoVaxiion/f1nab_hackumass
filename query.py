@@ -1,8 +1,9 @@
 import os
-import google.generativeai as genai
+import requests
 from dotenv import load_dotenv
 from pinecone import Pinecone
 import re
+import json
 
 
 load_dotenv()
@@ -10,7 +11,6 @@ load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 
-genai.configure(api_key=gemini_api_key)
 pc = Pinecone(api_key=pinecone_api_key)
 index = pc.Index("tester")
 
@@ -29,18 +29,25 @@ def set_race_context(race_name):
 
 def document_to_vector(document):
     """
-    Generates embeddings using Gemini API.
+    Generates embeddings using Gemini REST API.
     """
     try:
-        response = genai.embed_content(
-            model="models/embedding-001",
-            content=document,
-            task_type="RETRIEVAL_QUERY"
-        )
-        return response["embedding"]
+        url = "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent"
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "model": "models/embedding-001",
+            "content": {"parts": [{"text": document}]},
+            "taskType": "RETRIEVAL_QUERY"
+        }
+        response = requests.post(f"{url}?key={gemini_api_key}", json=payload, headers=headers)
+        if response.status_code == 200:
+            return response.json()["embedding"]["values"]
+        else:
+            print(f"Error generating embedding: {response.status_code}")
+            return [0] * 768
     except Exception as e:
         print(f"Error generating embedding: {e}")
-        return [0] * 768  # Default fallback vector
+        return [0] * 768
 
 def search_documents(query):
     """
@@ -58,7 +65,7 @@ def search_documents(query):
 
 def generate_response_with_context(query, retrieved_data):
     """
-    Generates a response using Gemini API with context provided by Pinecone data.
+    Generates a response using Gemini REST API with context from Pinecone.
     """
     race_info = current_race if current_race else "an unspecified race"
 
@@ -70,33 +77,40 @@ def generate_response_with_context(query, retrieved_data):
             for d in retrieved_data if isinstance(d, dict)
         ])
 
-    # Clean up extraneous commas or empty fields
     context_details = re.sub(r",\s+", ", ", context_details)
     context_details = context_details.replace(", None", "").replace("None", "").strip()
 
-    prompt = f"""
-    You are assisting a user with questions about the {race_info} in Formula 1.
+    prompt = f"""You are assisting a user with questions about the {race_info} in Formula 1.
 
-    User query: '{query}'
+User query: '{query}'
 
-    Relevant information from Pinecone (if available):
-    {context_details}
+Relevant information from Pinecone (if available):
+{context_details}
 
-    Based on this information, please provide a detailed and accurate response about the {race_info}.
-    If there is no specific data from Pinecone, use your own knowledge to answer the query without mentioning Pinecone.
-    """
+Based on this information, please provide a detailed and accurate response about the {race_info}.
+If there is no specific data from Pinecone, use your own knowledge to answer the query."""
 
     try:
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
-
-
-        response = model.generate_content(prompt)
-        # Remove any asterisks from the response text
-        return response.text.replace("**", "")
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 1000}
+        }
+        response = requests.post(f"{url}?key={gemini_api_key}", json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "candidates" in data and len(data["candidates"]) > 0:
+                text = data["candidates"][0]["content"]["parts"][0]["text"]
+                return text.replace("**", "")
+            return "No response generated"
+        else:
+            print(f"Gemini API error: {response.status_code}")
+            return f"Error: Unable to generate response ({response.status_code})"
     except Exception as e:
-        import traceback
-        print("Gemini exception:\n", traceback.format_exc())
-        return f"Error: Unable to generate response from Gemini. ({e})"
+        print(f"Gemini exception: {e}")
+        return f"Error: Unable to generate response"
 
 
 def add_to_chat_history(query, response):
