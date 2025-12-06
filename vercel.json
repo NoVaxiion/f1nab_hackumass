@@ -1,18 +1,12 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "f1_front_end/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "f1_front_end/build"
-      }
-    },
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+  "buildCommand": "cd f1_front_end && npm run build",
+  "outputDirectory": "f1_front_end/build",
+  "functions": {
+    "api/index.py": {
+      "runtime": "@vercel/python@3.8"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -20,7 +14,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "f1_front_end/build/$1"
+      "dest": "f1_front_end/build/index.html"
     }
   ]
 }
