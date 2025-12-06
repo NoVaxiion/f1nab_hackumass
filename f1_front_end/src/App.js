@@ -33,7 +33,8 @@ function App() {
     setMessageSent(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/query", {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+      const res = await axios.post(`${apiUrl}/api/query`, {
         query: input,
       });
       const cleaned = cleanText(res.data.response);
