@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd f1_front_end && npm run build",
+  "buildCommand": "cd f1_front_end && npm install && npm run build",
   "outputDirectory": "f1_front_end/build",
   "routes": [
     {
