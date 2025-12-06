@@ -8,6 +8,18 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/manifest.json",
+      "dest": "f1_front_end/build/manifest.json"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "f1_front_end/build/favicon.ico"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "f1_front_end/build/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "f1_front_end/build/index.html"
     }

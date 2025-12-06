@@ -33,13 +33,14 @@ function App() {
     setMessageSent(true);
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-      const res = await axios.post(`${apiUrl}/api/query`, {
+      // Use relative path for API calls (works on both localhost and Vercel)
+      const res = await axios.post("/api/query", {
         query: input,
       });
       const cleaned = cleanText(res.data.response);
       setMessages((prev) => [...prev, { sender: "bot", text: cleaned }]);
-    } catch {
+    } catch (error) {
+      console.error("API Error:", error);
       setMessages((prev) => [
         ...prev,
         {
